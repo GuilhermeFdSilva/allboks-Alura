@@ -358,6 +358,4 @@ server.use(/^(?!\/(public|livros|autores|categorias)).*$/, (req, res, next) => {
 
 server.use(router)
 
-server.listen(8000, () => {
-  console.log("Acesse essa API em http://localhost:8000")
-})
+module.exports = server;

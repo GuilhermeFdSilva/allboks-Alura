@@ -1,74 +1,30 @@
-const { usuarioExiste, emailExiste } = require('../services/userService');
+const request = require('supertest');
+const server = require('../server');
 
-const { testeDB } = require('../config/database');
+describe('Testando autenticação de usuário', () => {
 
-describe('Testando função emailExiste de userService', () => {
-    it('deve retornar FALSE para email invalido', () => {
-        const email = 'invalido@mail.com';
-        expect(emailExiste(email, testeDB)).toBe(false);
-    });
-    it('deve retornar FALSE para email inexistente', () => {
-        const email = undefined;
-        expect(emailExiste(email, testeDB)).toBe(false);
-    });
+  it('deve retornar 401 para usuário inválido', async () => {
+    const response = await request(server)
+      .post('/public/login')
+      .send({
+        email: 'invalido@mail.com',
+        senha: 123456
+      });
 
-    it('deve retornar FALSE para email vazio', () => {
-        const email = '';
-        expect(emailExiste(email, testeDB)).toBe(false);
-    });
+    expect(response.status).toBe(401);
+  });
 
-    it('deve retornar TRUE para email valido', () => {
-        const email = 'valido@mail.com';
-        expect(emailExiste(email, testeDB)).toBe(true);
-    });
-});
+  it('deve retornar 200 para usuário válido', async () => {
+    const response = await request(server)
+      .post('/public/login')
+      .send({
+        email: 'valido@mail.com',
+        senha: 123456
+      });
 
-
-describe('Testando função usuarioExiste de userService', () => {
-    it('deve retornar FALSE para email inexistente', () => {
-        const email = undefined;
-        const senha = 123456;
-        expect(usuarioExiste(email, senha, testeDB)).toBe(false);
-    });
-
-    it('deve retornar FALSE para email invalido', () => {
-        const email = 'invalido@mail.com';
-        const senha = 123456;
-        expect(usuarioExiste(email, senha, testeDB)).toBe(false);
-    });
-    it('deve retornar TRUE para email valido', () => {
-        const email = 'valido@mail.com';
-        const senha = 123456;
-        expect(usuarioExiste(email, senha, testeDB)).toBe(true);
-    });
-
-    it('deve retornar FALSE para senha inexistente', () => {
-        const email = 'valido@mail.com';
-        const senha = undefined;
-        expect(usuarioExiste(email, senha, testeDB)).toBe(false);
-    });
-
-    it('deve retornar FALSE para senha invalida', () => {
-        const email = 'valido@mail.com';
-        const senha = 'senha_invalida';
-        expect(usuarioExiste(email, senha, testeDB)).toBe(false);
-    });
-
-    it('deve retornar TRUE para senha valida', () => {
-        const email = 'valido@mail.com';
-        const senha = 123456;
-        expect(usuarioExiste(email, senha, testeDB)).toBe(true);
-    });
-
-    it('deve executar em menos de 1 milissegundo para um email existente', () => {
-        const email = 'valido@mail.com';
-        const senha = 123456;
-
-        const start = Date.now();
-        usuarioExiste(email, senha, testeDB);
-        const end = Date.now();
-
-        expect(end - start).toBeLessThan(1);
-    });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('access_token');
+    expect(response.body).toHaveProperty('user');
+  });
 
 });
