@@ -29,7 +29,7 @@ function emailExiste(email) {
   return userdb.usuarios.findIndex(user => user.email === email) !== -1
 }
 
-server.post('/public/registrar', (req, res) => {
+server.post('/public/cadastrar', (req, res) => {
   const { email, senha, nome, endereco, complemento, cep } = req.body;
 
   if (emailExiste(email)) {
